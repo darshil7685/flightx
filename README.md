@@ -175,6 +175,8 @@ Connect the repo via **New → Blueprint** and use the root `render.yaml`.
 - **Vite env vars** are embedded at build time — changing `VITE_API_URL` requires a frontend redeploy.
 - **CognoDB** must stay reachable from Render (cloud instances usually work with `bolt+s://`).
 
-## Demo
-
-*(Add hosted demo URL and screen recording link here before submitting.)*
+## Screenshots
+  ![flightx1](docs/flightx1.png)
+  ![flightx2](docs/flightx2.png)
+  ![flightx3](docs/flightx3.png)
+  
