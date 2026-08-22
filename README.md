@@ -102,6 +102,79 @@ npm run dev
 ## Screenshots
 
 
+## Deploy on Render
+
+This app needs **two Render services** (API + static frontend) plus your existing **CognoDB** instance.
+
+### 1. Push to GitHub
+
+Commit the repo (`.env` files stay local — they are in `.gitignore`).
+
+### 2. Deploy the API (Web Service)
+
+| Setting | Value |
+|---|---|
+| **Root Directory** | `backend` |
+| **Build Command** | `npm install` |
+| **Start Command** | `npm start` |
+| **Health Check Path** | `/api/health` |
+
+**Environment variables** (Render dashboard → Environment):
+
+| Key | Value |
+|---|---|
+| `COGNODB_URI` | Your `bolt+s://...` URI |
+| `COGNODB_USER` | `cognodb` |
+| `COGNODB_PASSWORD` | Your CognoDB password |
+| `CORS_ORIGIN` | Frontend URL (set after step 3), e.g. `https://flightx-web.onrender.com` |
+
+Render sets `PORT` automatically — no need to add it.
+
+### 3. Seed the database (once)
+
+In the Render **backend service → Shell**:
+
+```bash
+npm run seed
+```
+
+### 4. Deploy the frontend (Static Site)
+
+| Setting | Value |
+|---|---|
+| **Root Directory** | `frontend` |
+| **Build Command** | `npm install && npm run build` |
+| **Publish Directory** | `dist` |
+
+**Environment variable** (must be set **before** build):
+
+| Key | Value |
+|---|---|
+| `VITE_API_URL` | Your API URL, e.g. `https://flightx-api.onrender.com` |
+
+**Rewrite rule** (Static Site → Redirects/Rewrites):
+
+```
+/*  /index.html  200
+```
+
+Or use the included `render.yaml` blueprint, which sets this automatically.
+
+### 5. Link the two services
+
+1. Copy the **frontend URL** → set `CORS_ORIGIN` on the API service → redeploy API.
+2. Copy the **API URL** → set `VITE_API_URL` on the frontend → redeploy frontend.
+
+### Optional: one-click deploy
+
+Connect the repo via **New → Blueprint** and use the root `render.yaml`.
+
+### Notes
+
+- **Free tier:** the API sleeps after inactivity; the first request may take ~30s to wake up.
+- **Vite env vars** are embedded at build time — changing `VITE_API_URL` requires a frontend redeploy.
+- **CognoDB** must stay reachable from Render (cloud instances usually work with `bolt+s://`).
+
 ## Demo
 
 *(Add hosted demo URL and screen recording link here before submitting.)*

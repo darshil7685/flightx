@@ -14,9 +14,21 @@ const { simulateClosure, findBottlenecks } = require('./queries/analysisQueries'
 
 const app = express();
 app.use(express.json());
+
+// Comma-separated list, e.g. https://flightx.onrender.com,http://localhost:5173
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim()).filter(Boolean)
+  : ['*'];
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
   })
 );
 
@@ -150,6 +162,7 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`FlightX API listening`);
+const HOST = process.env.HOST || '0.0.0.0';
+app.listen(PORT, HOST, () => {
+  console.log(`FlightX API listening on ${HOST}:${PORT}`);
 });
